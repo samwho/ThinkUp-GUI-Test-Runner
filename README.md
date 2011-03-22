@@ -18,7 +18,7 @@ that they are being run from the GUI.
 
 ## USAGE
 
-To use the program you currently need to cd into the dist/ directory and run java -jar SimpleTestGUI.jar
+To use the program you currently need to cd into the main directory directory and run java -jar dist/SimpleTestGUI.jar
 from there.
 
 To run tests, simply select a test file from the first list then select one or more test methods from
