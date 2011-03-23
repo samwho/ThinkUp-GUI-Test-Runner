@@ -10,7 +10,7 @@ import simpletestgui.MainForm;
  *
  * Pass one of these objects to a thread and run it, like so:
  *
- * Thread t = new Thread(new CommandRunner(<form>, <commands>));
+ * Thread t = new Thread(new CommandRunner(<owner form>, <commands>));
  * t.start();
  *
  * for optimum results.
@@ -19,10 +19,14 @@ import simpletestgui.MainForm;
  */
 public class CommandRunner implements Runnable {
 
+    public static int lineCount = 0;
     private ArrayList<RunCommand> commands;
     private MainForm owner;
     private static final Object lock = new Object();
     private static boolean stop = false;
+    private int passes = 0;
+    private int failures = 0;
+    private int exceptions = 0;
 
     /**
      * This is the constructor for the CommandRunner class. The CommandRunner is designed
@@ -46,6 +50,11 @@ public class CommandRunner implements Runnable {
     }
 
     public void run() {
+        /*
+         * This method is synchronized on the static lock in this
+         * class. This is to prevent the running of two sets of tests
+         * at the same time.
+         */
         synchronized (lock) {
             int noCommands = commands.size();
             int commandsRun = 0;
@@ -54,15 +63,37 @@ public class CommandRunner implements Runnable {
             this.owner.getProgressBar().setMaximum(noCommands);
             this.owner.getProgressBar().setValue(0);
 
+            // get an iterator of RunCommands and loop through them
             Iterator<RunCommand> iter = this.commands.iterator();
             while (iter.hasNext() && !stop) {
                 RunCommand r = iter.next();
                 this.owner.getProgressBar().setString("Running " + r.getMethod() + "...");
                 this.owner.getProgressBar().setStringPainted(true);
                 r.run();
+
+                // increment the passes, failure and exceptions from this test
+                passes += r.getPasses();
+                failures += r.getFailures();
+                exceptions += r.getExceptions();
+
+                if (owner.getHideSuccessfulTests().getState() && r.getFailures() == 0) {
+                    // user is hiding successful tests and this test is successful
+                } else {
+                    owner.getTestOutput().append(r.getOutput() + "\n");
+                    owner.getTestOutput().setCaretPosition(owner.getTestOutput().getText().length());
+                }
+
+                // increment the commandsRun variable and set the value of the progress bar to its new value
                 this.owner.getProgressBar().setValue(++commandsRun);
             }
 
+            // display the cumulative results of this set of tests
+            owner.getTestOutput().append("=========================\n");
+            owner.getTestOutput().append("Total passes: " + passes + " - Total failures: " + failures
+                    + " - Total exceptions: " + exceptions + "\n");
+            owner.getTestOutput().setCaretPosition(owner.getTestOutput().getText().length());
+
+            // handle the thread being stopped
             if (stop) {
                 this.owner.getProgressBar().setValue(0);
                 this.owner.getProgressBar().setString("Cancelled.");

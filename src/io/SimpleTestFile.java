@@ -1,11 +1,13 @@
 package io;
 
+import async.CommandRunner;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,8 +32,9 @@ public class SimpleTestFile implements Comparable {
     public int compareTo(Object o) {
         return this.file.getName().compareTo(((SimpleTestFile) o).getFile().getName());
     }
+
     private File file;
-    private LinkedList<String> methods = new LinkedList<String>();
+    private TreeSet<String> methods = new TreeSet<String>();
     private boolean isTestFile = false;
     private static Pattern thinkupTestFilePattern = Pattern.compile(" extends (?:ThinkUp(?:Basic)?(?:Unit|Web)TestCase)");
     private static Pattern methodPattern = Pattern.compile("(?:public )?function (test.+)(?: )?[(][)]");
@@ -65,7 +68,7 @@ public class SimpleTestFile implements Comparable {
                 while (line != null) {
                     thinkupTestFileMatcher = thinkupTestFilePattern.matcher(line);
                     methodMatcher = methodPattern.matcher(line);
-
+                    CommandRunner.lineCount++;
                     if (thinkupTestFileMatcher.find()) {
                         this.isTestFile = true;
                     } else if (methodMatcher.find()) {
@@ -88,9 +91,9 @@ public class SimpleTestFile implements Comparable {
      * Gets a list of the test methods that were found in
      * this file.
      *
-     * @return a LinkedList of test methods found in this file.
+     * @return a TreeSet of test methods found in this file.
      */
-    public LinkedList<String> getMethods() {
+    public TreeSet<String> getMethods() {
         return methods;
     }
 

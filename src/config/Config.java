@@ -16,10 +16,11 @@ import java.util.regex.Pattern;
  * @author Sam Rose <samwho@lbak.co.uk>
  */
 public class Config {
-
+    private static File configFile = new File("config.txt");
     private Pattern matchOption = Pattern.compile("(.+)=(.+)");
     private static Config singleton = new Config();
     private HashMap<String, String> options = new HashMap<String, String>();
+    private static String errorMessage = null;
 
     /**
      * Get the singleton instance of the Config class.
@@ -30,26 +31,40 @@ public class Config {
         return singleton;
     }
 
+    public static File getConfigFile() {
+        return configFile;
+    }
+
+    /**
+     * Gets the error message that was generated if the config file failed to load.
+     *
+     * Will return null if the config file loaded properly.
+     *
+     * @return Null if the config file loaded properly, an error message if it did not.
+     */
+    public static String getErrorMessage() {
+        return errorMessage;
+    }
+
     /**
      * The constructor to this class parses the config.txt file and
      * extracts key=value pairs using a regular expression.
      */
     private Config() {
         try {
-            BufferedReader br = new BufferedReader(new FileReader(new File("config.txt")));
+            BufferedReader br = new BufferedReader(new FileReader(configFile));
 
             String line = br.readLine();
             while (line != null) {
                 Matcher m = matchOption.matcher(line);
                 if (m.find()) {
-                    System.out.println(m.group(2));
                     options.put(m.group(1), m.group(2));
                 }
 
                 line = br.readLine();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            errorMessage = e.getMessage();
         }
     }
 

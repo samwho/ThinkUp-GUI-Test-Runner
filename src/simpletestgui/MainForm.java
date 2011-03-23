@@ -2,14 +2,16 @@ package simpletestgui;
 
 import async.CommandRunner;
 import async.RunCommand;
+import async.ScanTestFiles;
 import io.ThinkUpTestsDirectory;
 import io.SimpleTestFile;
-import config.Config;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
 import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JList;
 import javax.swing.JProgressBar;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
@@ -23,6 +25,12 @@ import javax.swing.UnsupportedLookAndFeelException;
  * @author Sam Rose <samwho@lbak.co.uk>
  */
 public class MainForm extends javax.swing.JFrame {
+    private ThinkUpTestsDirectory testFiles = new ThinkUpTestsDirectory();
+    private Thread runThread;
+
+    public JCheckBoxMenuItem getHideSuccessfulTests() {
+        return hideSuccessfulTests;
+    }
 
     public JButton getRunButton() {
         return runButton;
@@ -39,10 +47,10 @@ public class MainForm extends javax.swing.JFrame {
     public JProgressBar getProgressBar() {
         return progressBar;
     }
-    private ThinkUpTestsDirectory testFiles = new ThinkUpTestsDirectory();
-    private String baseThinkUpDir;
-    private Thread runThread;
-    private Config config = Config.getInstance();
+
+    public JList getTestFileList() {
+        return testFileList;
+    }
 
     /** Creates new form MainForm */
     public MainForm() {
@@ -61,20 +69,15 @@ public class MainForm extends javax.swing.JFrame {
             System.err.println("Illegal access exception: " + e.getMessage());
         }
 
+        // this method is for NetBeans to set up the GUI
         initComponents();
 
+        // set the icon image to the ThinkUp logo
         this.setIconImage(Toolkit.getDefaultToolkit().getImage("src/assets/thinkup-logo.png"));
 
-        // get the base ThinkUp dir from the config
-        baseThinkUpDir = config.getValue("thinkup_root_dir");
-
-        // parse relevant directories
-        testFiles.parseDirectory(baseThinkUpDir + "tests");
-        testFiles.parseDirectory(baseThinkUpDir + "webapp/plugins");
-
-        // add the test files to the left list box
-        testFileList.setListData(testFiles.getTestFiles().toArray());
-
+        // start the run thread running a scan for test files
+        this.runThread = new Thread(new ScanTestFiles(this, testFiles));
+        runThread.start();
     }
 
     /** This method is called from within the constructor to
@@ -86,19 +89,24 @@ public class MainForm extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel1 = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
+        mainPanel = new javax.swing.JPanel();
+        testFileScrollPane = new javax.swing.JScrollPane();
         testFileList = new javax.swing.JList();
-        jScrollPane2 = new javax.swing.JScrollPane();
+        methodListScrollPane = new javax.swing.JScrollPane();
         methodList = new javax.swing.JList();
         runButton = new javax.swing.JButton();
-        jScrollPane3 = new javax.swing.JScrollPane();
+        outputScrollPane = new javax.swing.JScrollPane();
         testOutput = new javax.swing.JTextArea();
         cancelButton = new javax.swing.JButton();
         progressBar = new javax.swing.JProgressBar();
-        jMenuBar1 = new javax.swing.JMenuBar();
+        menuBar = new javax.swing.JMenuBar();
         debugMenu = new javax.swing.JMenu();
         debugCheckBox = new javax.swing.JCheckBoxMenuItem();
+        outputMenu = new javax.swing.JMenu();
+        hideSuccessfulTests = new javax.swing.JCheckBoxMenuItem();
+        autoRunMenu = new javax.swing.JMenu();
+        autoRunEnabled = new javax.swing.JCheckBoxMenuItem();
+        autoRunAbout = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("ThinkUp Test Runner");
@@ -109,7 +117,7 @@ public class MainForm extends javax.swing.JFrame {
                 testFileListValueChanged(evt);
             }
         });
-        jScrollPane1.setViewportView(testFileList);
+        testFileScrollPane.setViewportView(testFileList);
 
         methodList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
             public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
@@ -121,9 +129,10 @@ public class MainForm extends javax.swing.JFrame {
                 methodListKeyPressed(evt);
             }
         });
-        jScrollPane2.setViewportView(methodList);
+        methodListScrollPane.setViewportView(methodList);
 
         runButton.setText("Run");
+        runButton.setEnabled(false);
         runButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 runButtonActionPerformed(evt);
@@ -134,7 +143,7 @@ public class MainForm extends javax.swing.JFrame {
         testOutput.setEditable(false);
         testOutput.setLineWrap(true);
         testOutput.setRows(5);
-        jScrollPane3.setViewportView(testOutput);
+        outputScrollPane.setViewportView(testOutput);
 
         cancelButton.setText("Cancel");
         cancelButton.setEnabled(false);
@@ -144,62 +153,83 @@ public class MainForm extends javax.swing.JFrame {
             }
         });
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
+        mainPanel.setLayout(mainPanelLayout);
+        mainPanelLayout.setHorizontalGroup(
+            mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(mainPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 551, Short.MAX_VALUE)
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(outputScrollPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 551, Short.MAX_VALUE)
                     .addComponent(progressBar, javax.swing.GroupLayout.DEFAULT_SIZE, 551, Short.MAX_VALUE)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(mainPanelLayout.createSequentialGroup()
+                        .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(runButton, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 272, Short.MAX_VALUE)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 272, Short.MAX_VALUE))
+                            .addComponent(testFileScrollPane, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 272, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(cancelButton, javax.swing.GroupLayout.DEFAULT_SIZE, 273, Short.MAX_VALUE)
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 273, Short.MAX_VALUE))))
+                            .addComponent(methodListScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 273, Short.MAX_VALUE))))
                 .addContainerGap())
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        mainPanelLayout.setVerticalGroup(
+            mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(mainPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 335, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 335, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(testFileScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 335, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(methodListScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 335, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(runButton)
                     .addComponent(cancelButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 278, Short.MAX_VALUE)
+                .addComponent(outputScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 278, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
         debugMenu.setText("Debug");
 
         debugCheckBox.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_D, java.awt.event.InputEvent.CTRL_MASK));
-        debugCheckBox.setText("Debug");
+        debugCheckBox.setText("Enabled");
+        debugCheckBox.setToolTipText("Toggle the display of debug messages in test output.");
         debugMenu.add(debugCheckBox);
 
-        jMenuBar1.add(debugMenu);
+        menuBar.add(debugMenu);
 
-        setJMenuBar(jMenuBar1);
+        outputMenu.setText("Output");
+
+        hideSuccessfulTests.setSelected(true);
+        hideSuccessfulTests.setText("Hide successful tests");
+        hideSuccessfulTests.setToolTipText("Enabling this will hide tests with no failures from the test output.");
+        outputMenu.add(hideSuccessfulTests);
+
+        menuBar.add(outputMenu);
+
+        autoRunMenu.setText("Auto-run");
+        autoRunMenu.setEnabled(false);
+
+        autoRunEnabled.setText("Enabled");
+        autoRunMenu.add(autoRunEnabled);
+
+        autoRunAbout.setText("About...");
+        autoRunMenu.add(autoRunAbout);
+
+        menuBar.add(autoRunMenu);
+
+        setJMenuBar(menuBar);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(mainPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(mainPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
@@ -215,6 +245,14 @@ public class MainForm extends javax.swing.JFrame {
     }//GEN-LAST:event_testFileListValueChanged
 
     private void runButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_runButtonActionPerformed
+        this.runSelectedTests();
+    }//GEN-LAST:event_runButtonActionPerformed
+
+    /**
+     * This method runs the tests that are selected in the list
+     * boxes on this form.
+     */
+    public void runSelectedTests() {
         SimpleTestFile file = (SimpleTestFile) testFileList.getSelectedValue();
         ArrayList<String[]> env = new ArrayList<String[]>();
 
@@ -257,15 +295,22 @@ public class MainForm extends javax.swing.JFrame {
         runThread.start();
 
         this.cancelButton.setEnabled(true);
-    }//GEN-LAST:event_runButtonActionPerformed
+    }
 
-    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
+    /**
+     * If tests are currently running, this method will stop them safely.
+     */
+    public void cancelRunningTests() {
         if (runThread != null) {
             if (runThread.isAlive()) {
                 CommandRunner.stop();
                 this.cancelButton.setEnabled(false);
             }
         }
+    }
+
+    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
+        this.cancelRunningTests();
     }//GEN-LAST:event_cancelButtonActionPerformed
 
     private void methodListKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_methodListKeyPressed
@@ -286,18 +331,23 @@ public class MainForm extends javax.swing.JFrame {
         });
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuItem autoRunAbout;
+    private javax.swing.JCheckBoxMenuItem autoRunEnabled;
+    private javax.swing.JMenu autoRunMenu;
     private javax.swing.JButton cancelButton;
     private javax.swing.JCheckBoxMenuItem debugCheckBox;
     private javax.swing.JMenu debugMenu;
-    private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JCheckBoxMenuItem hideSuccessfulTests;
+    private javax.swing.JPanel mainPanel;
+    private javax.swing.JMenuBar menuBar;
     private javax.swing.JList methodList;
+    private javax.swing.JScrollPane methodListScrollPane;
+    private javax.swing.JMenu outputMenu;
+    private javax.swing.JScrollPane outputScrollPane;
     private javax.swing.JProgressBar progressBar;
     private javax.swing.JButton runButton;
     private javax.swing.JList testFileList;
+    private javax.swing.JScrollPane testFileScrollPane;
     private javax.swing.JTextArea testOutput;
     // End of variables declaration//GEN-END:variables
 }

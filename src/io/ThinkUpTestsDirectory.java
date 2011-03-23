@@ -1,6 +1,7 @@
 package io;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.util.Iterator;
 import java.util.TreeSet;
 
@@ -20,6 +21,7 @@ public class ThinkUpTestsDirectory {
 
     private String directory = null;
     private TreeSet<SimpleTestFile> testFiles = new TreeSet<SimpleTestFile>();
+    private PhpFileFilter filter = new PhpFileFilter();
 
     /**
      * Initialises the class by parsing a directory.
@@ -98,7 +100,7 @@ public class ThinkUpTestsDirectory {
      */
     private void parseTestFiles(File dir) {
         if (dir.isDirectory()) {
-            String[] children = dir.list();
+            String[] children = dir.list(filter);
 
             if (children != null) {
                 for (int i = 0; i < children.length; i++) {
