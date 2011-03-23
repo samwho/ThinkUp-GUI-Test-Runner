@@ -64,7 +64,8 @@ public class ThinkUpTestsDirectory {
      * @param directory The absolute path to the directory to scan.
      */
     public final void parseDirectory(String directory) {
-        this.directory = directory.lastIndexOf('/') == directory.length() ? directory : directory + "/";
+        this.directory = directory.lastIndexOf(System.getProperty("file.separator")) == directory.length() ? 
+                directory : directory + System.getProperty("file.separator");
         this.parseTestFiles();
     }
 
@@ -104,7 +105,7 @@ public class ThinkUpTestsDirectory {
 
             if (children != null) {
                 for (int i = 0; i < children.length; i++) {
-                    SimpleTestFile f = new SimpleTestFile(dir.getAbsolutePath() + "/" + children[i]);
+                    SimpleTestFile f = new SimpleTestFile(dir.getAbsolutePath() + System.getProperty("file.separator") + children[i]);
                     if (f.isTestFile()) {
                         testFiles.add(f);
                     } else if (f.getFile().isDirectory()) {

@@ -1,1 +1,2 @@
-thinkup_root_dir=/home/sam/Dropbox/LocalServer/projects/ThinkUp/
+thinkup_root_dir=/home/sam/Dropbox/LocalServer/projects/ThinkUp
+php_dir=

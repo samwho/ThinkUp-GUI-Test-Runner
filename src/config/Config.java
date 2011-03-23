@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
  */
 public class Config {
     private static File configFile = new File("config.txt");
-    private Pattern matchOption = Pattern.compile("(.+)=(.+)");
+    private Pattern matchOption = Pattern.compile("^(.+)=(.+)$");
     private static Config singleton = new Config();
     private HashMap<String, String> options = new HashMap<String, String>();
     private static String errorMessage = null;
@@ -75,6 +75,6 @@ public class Config {
      * @return The value of the option.
      */
     public String getValue(String key) {
-        return options.get(key);
+        return options.get(key) != null ? options.get(key) : "";
     }
 }

@@ -3,6 +3,7 @@ package simpletestgui;
 import async.CommandRunner;
 import async.RunCommand;
 import async.ScanTestFiles;
+import config.Config;
 import io.ThinkUpTestsDirectory;
 import io.SimpleTestFile;
 import java.awt.Toolkit;
@@ -27,6 +28,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 public class MainForm extends javax.swing.JFrame {
     private ThinkUpTestsDirectory testFiles = new ThinkUpTestsDirectory();
     private Thread runThread;
+    private Config config = Config.getInstance();
 
     public JCheckBoxMenuItem getHideSuccessfulTests() {
         return hideSuccessfulTests;
@@ -284,7 +286,14 @@ public class MainForm extends javax.swing.JFrame {
         Iterator<String[]> envIter = env.iterator();
 
         while (envIter.hasNext()) {
-            commands.add(new RunCommand(this, "php " + file.getFile().getAbsolutePath(), envIter.next()));
+            if (System.getProperty("os.name").contains("Windows")) {
+                commands.add(new RunCommand(this, "\"" + config.getValue("php_dir") + 
+                    "php\" \"" + file.getFile().getAbsolutePath() + "\"", envIter.next()));
+            }
+            else {
+                commands.add(new RunCommand(this, config.getValue("php_dir") + 
+                    "php " + file.getFile().getAbsolutePath(), envIter.next()));
+            }
         }
 
         // empty test output box ready for new tests
