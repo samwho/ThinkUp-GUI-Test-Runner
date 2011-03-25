@@ -27,6 +27,7 @@ public class CommandRunner implements Runnable {
     private int passes = 0;
     private int failures = 0;
     private int exceptions = 0;
+    private int commandsRun = 0;
 
     /**
      * This is the constructor for the CommandRunner class. The CommandRunner is designed
@@ -49,6 +50,7 @@ public class CommandRunner implements Runnable {
         stop = true;
     }
 
+    @Override
     public void run() {
         /*
          * This method is synchronized on the static lock in this
@@ -57,7 +59,6 @@ public class CommandRunner implements Runnable {
          */
         synchronized (lock) {
             int noCommands = commands.size();
-            int commandsRun = 0;
 
             this.owner.getRunButton().setEnabled(false);
             this.owner.getProgressBar().setMaximum(noCommands);
@@ -69,28 +70,36 @@ public class CommandRunner implements Runnable {
                 RunCommand r = iter.next();
                 this.owner.getProgressBar().setString("Running " + r.getMethod() + "...");
                 this.owner.getProgressBar().setStringPainted(true);
+
+                // run the command
                 r.run();
 
                 // increment the passes, failure and exceptions from this test
                 passes += r.getPasses();
                 failures += r.getFailures();
                 exceptions += r.getExceptions();
+                commandsRun++;
 
-                if (owner.getHideSuccessfulTests().getState() && r.getFailures() == 0) {
+                if (owner.getHideSuccessfulTests().getState() && r.getFailures() == 0 && r.getPasses() > 0) {
                     // user is hiding successful tests and this test is successful
                 } else {
                     owner.getTestOutput().append(r.getOutput() + "\n");
                     owner.getTestOutput().setCaretPosition(owner.getTestOutput().getText().length());
                 }
 
+                if (!r.getError().isEmpty()) {
+                    owner.getTestOutput().append(r.getMethod() + " output to stderr:\n" + r.getError() + "\n");
+                    owner.getTestOutput().setCaretPosition(owner.getTestOutput().getText().length());
+                }
+
                 // increment the commandsRun variable and set the value of the progress bar to its new value
-                this.owner.getProgressBar().setValue(++commandsRun);
+                this.owner.getProgressBar().setValue(commandsRun);
             }
 
             // display the cumulative results of this set of tests
             owner.getTestOutput().append("=========================\n");
-            owner.getTestOutput().append("Total passes: " + passes + " - Total failures: " + failures
-                    + " - Total exceptions: " + exceptions + "\n");
+            owner.getTestOutput().append("Tests run: " + commandsRun + " - Total passes: " + passes +
+                    " - Total failures: " + failures + " - Total exceptions: " + exceptions + "\n");
             owner.getTestOutput().setCaretPosition(owner.getTestOutput().getText().length());
 
             // handle the thread being stopped

@@ -27,6 +27,7 @@ public class RunCommand implements Runnable {
     private int failures = 0;
     private int exceptions = 0;
     private String output = "";
+    private String error = "";
 
     /**
      * Initialises the RunCommand object with the owner form, the command to
@@ -40,12 +41,6 @@ public class RunCommand implements Runnable {
         this.owner = owner;
         this.command = command;
         this.env = env;
-
-        System.out.println("Running command: " + this.command);
-        System.out.println("With env:");
-        for (int i = 0; i < env.length; i++) {
-            System.out.println(env[i]);
-        }
     }
 
     public int getFailures() {
@@ -60,8 +55,24 @@ public class RunCommand implements Runnable {
         return exceptions;
     }
 
+    /**
+     * Returns whatever was output to stdout during the run of the command.
+     *
+     * @return The stdout for the command.
+     */
     public String getOutput() {
         return output;
+    }
+
+    /**
+     * Returns whatever was output to stderr during the run of the command.
+     *
+     * If no errors were output, an empty string is returned.
+     *
+     * @return The stderr of the command.
+     */
+    public String getError() {
+        return error;
     }
 
     /**
@@ -90,19 +101,33 @@ public class RunCommand implements Runnable {
      * Runs the command and adds the command output to the output box
      * on the owner form.
      */
+    @Override
     public void run() {
         Matcher passesMatcher;
         Matcher failuresMatcher;
         Matcher exceptionsMatcher;
 
+        System.out.println("Running command: " + this.command);
+        System.out.println("With env:");
+        for (int i = 0; i < env.length; i++) {
+            System.out.println(env[i]);
+        }
+
         try {
             Process p = Runtime.getRuntime().exec(this.command, this.env);
             BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            BufferedReader br_err = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 
             String line = br.readLine();
             while (line != null) {
                 output += line + "\n";
                 line = br.readLine();
+            }
+
+            line = br_err.readLine();
+            while (line != null) {
+                error += line + "\n";
+                line = br_err.readLine();
             }
 
             passesMatcher = getPassesPattern.matcher(output);
