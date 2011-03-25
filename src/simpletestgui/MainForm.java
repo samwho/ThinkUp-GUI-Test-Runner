@@ -10,6 +10,7 @@ import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.TreeSet;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JList;
@@ -26,6 +27,7 @@ import javax.swing.UnsupportedLookAndFeelException;
  * @author Sam Rose <samwho@lbak.co.uk>
  */
 public class MainForm extends javax.swing.JFrame {
+
     private ThinkUpTestsDirectory testFiles = new ThinkUpTestsDirectory();
     private Thread runThread;
     private Config config = Config.getInstance();
@@ -101,6 +103,8 @@ public class MainForm extends javax.swing.JFrame {
         testOutput = new javax.swing.JTextArea();
         cancelButton = new javax.swing.JButton();
         progressBar = new javax.swing.JProgressBar();
+        testFileSearchBox = new javax.swing.JTextField();
+        methodSearchBox = new javax.swing.JTextField();
         menuBar = new javax.swing.JMenuBar();
         debugMenu = new javax.swing.JMenu();
         debugCheckBox = new javax.swing.JCheckBoxMenuItem();
@@ -145,6 +149,8 @@ public class MainForm extends javax.swing.JFrame {
         testOutput.setEditable(false);
         testOutput.setLineWrap(true);
         testOutput.setRows(5);
+        testOutput.setTabSize(4);
+        testOutput.setWrapStyleWord(true);
         outputScrollPane.setViewportView(testOutput);
 
         cancelButton.setText("Cancel");
@@ -155,6 +161,20 @@ public class MainForm extends javax.swing.JFrame {
             }
         });
 
+        testFileSearchBox.setToolTipText("Type to search the test files.");
+        testFileSearchBox.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                testFileSearchBoxKeyReleased(evt);
+            }
+        });
+
+        methodSearchBox.setToolTipText("Type to search the methods.");
+        methodSearchBox.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                methodSearchBoxKeyReleased(evt);
+            }
+        });
+
         javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
         mainPanel.setLayout(mainPanelLayout);
         mainPanelLayout.setHorizontalGroup(
@@ -162,25 +182,33 @@ public class MainForm extends javax.swing.JFrame {
             .addGroup(mainPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(outputScrollPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 551, Short.MAX_VALUE)
-                    .addComponent(progressBar, javax.swing.GroupLayout.DEFAULT_SIZE, 551, Short.MAX_VALUE)
+                    .addComponent(outputScrollPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 658, Short.MAX_VALUE)
                     .addGroup(mainPanelLayout.createSequentialGroup()
-                        .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(runButton, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 272, Short.MAX_VALUE)
-                            .addComponent(testFileScrollPane, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 272, Short.MAX_VALUE))
+                        .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(testFileScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 326, Short.MAX_VALUE)
+                            .addComponent(testFileSearchBox, javax.swing.GroupLayout.DEFAULT_SIZE, 326, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(cancelButton, javax.swing.GroupLayout.DEFAULT_SIZE, 273, Short.MAX_VALUE)
-                            .addComponent(methodListScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 273, Short.MAX_VALUE))))
+                            .addComponent(methodListScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 326, Short.MAX_VALUE)
+                            .addComponent(methodSearchBox, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 326, Short.MAX_VALUE)))
+                    .addComponent(progressBar, javax.swing.GroupLayout.DEFAULT_SIZE, 658, Short.MAX_VALUE)
+                    .addGroup(mainPanelLayout.createSequentialGroup()
+                        .addComponent(runButton, javax.swing.GroupLayout.DEFAULT_SIZE, 325, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(cancelButton, javax.swing.GroupLayout.DEFAULT_SIZE, 327, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         mainPanelLayout.setVerticalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(mainPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(testFileScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 335, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(methodListScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 335, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(testFileSearchBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(methodSearchBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(methodListScrollPane)
+                    .addComponent(testFileScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 233, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(runButton)
@@ -188,7 +216,7 @@ public class MainForm extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(outputScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 278, Short.MAX_VALUE)
+                .addComponent(outputScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 314, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -287,12 +315,11 @@ public class MainForm extends javax.swing.JFrame {
 
         while (envIter.hasNext()) {
             if (System.getProperty("os.name").contains("Windows")) {
-                commands.add(new RunCommand(this, "\"" + config.getValue("php_dir") + 
-                    "php\" \"" + file.getFile().getAbsolutePath() + "\"", envIter.next()));
-            }
-            else {
-                commands.add(new RunCommand(this, config.getValue("php_dir") + 
-                    "php " + file.getFile().getAbsolutePath(), envIter.next()));
+                commands.add(new RunCommand(this, "\"" + config.getValue("php_dir")
+                        + "php\" \"" + file.getFile().getAbsolutePath() + "\"", envIter.next()));
+            } else {
+                commands.add(new RunCommand(this, config.getValue("php_dir")
+                        + "php " + file.getFile().getAbsolutePath(), envIter.next()));
             }
         }
 
@@ -328,6 +355,44 @@ public class MainForm extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_methodListKeyPressed
 
+    private void testFileSearchBoxKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_testFileSearchBoxKeyReleased
+        try {
+            Iterator<SimpleTestFile> iter = this.testFiles.getTestFiles().iterator();
+            TreeSet<SimpleTestFile> newListData = new TreeSet<SimpleTestFile>();
+
+            while (iter.hasNext()) {
+                SimpleTestFile file = iter.next();
+                if (file.getFile().getName().toLowerCase().contains(this.testFileSearchBox.getText().toLowerCase())) {
+                    newListData.add(file);
+                }
+            }
+
+            this.testFileList.setListData(newListData.toArray());
+        }
+        catch (Exception e) {
+            // no list items
+        }
+    }//GEN-LAST:event_testFileSearchBoxKeyReleased
+
+    private void methodSearchBoxKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_methodSearchBoxKeyReleased
+        try {
+            Iterator<String> iter = ((SimpleTestFile) this.testFileList.getSelectedValue()).getMethods().iterator();
+            TreeSet<String> newListData = new TreeSet<String>();
+
+            while (iter.hasNext()) {
+                String method = iter.next();
+                if (method.toLowerCase().contains(this.methodSearchBox.getText().toLowerCase())) {
+                    newListData.add(method);
+                }
+            }
+
+            this.methodList.setListData(newListData.toArray());
+        }
+        catch (Exception e) {
+            // no list items
+        }
+    }//GEN-LAST:event_methodSearchBoxKeyReleased
+
     /**
      * @param args the command line arguments
      */
@@ -351,12 +416,14 @@ public class MainForm extends javax.swing.JFrame {
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JList methodList;
     private javax.swing.JScrollPane methodListScrollPane;
+    private javax.swing.JTextField methodSearchBox;
     private javax.swing.JMenu outputMenu;
     private javax.swing.JScrollPane outputScrollPane;
     private javax.swing.JProgressBar progressBar;
     private javax.swing.JButton runButton;
     private javax.swing.JList testFileList;
     private javax.swing.JScrollPane testFileScrollPane;
+    private javax.swing.JTextField testFileSearchBox;
     private javax.swing.JTextArea testOutput;
     // End of variables declaration//GEN-END:variables
 }

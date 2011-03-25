@@ -96,18 +96,23 @@
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="outputScrollPane" alignment="1" pref="551" max="32767" attributes="0"/>
-                      <Component id="progressBar" alignment="0" pref="551" max="32767" attributes="0"/>
-                      <Group type="102" alignment="0" attributes="0">
-                          <Group type="103" groupAlignment="1" attributes="0">
-                              <Component id="runButton" alignment="0" pref="272" max="32767" attributes="0"/>
-                              <Component id="testFileScrollPane" alignment="0" pref="272" max="32767" attributes="0"/>
-                          </Group>
-                          <EmptySpace min="-2" max="-2" attributes="0"/>
+                      <Component id="outputScrollPane" alignment="1" pref="658" max="32767" attributes="0"/>
+                      <Group type="102" attributes="0">
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="cancelButton" pref="273" max="32767" attributes="0"/>
-                              <Component id="methodListScrollPane" alignment="0" pref="273" max="32767" attributes="0"/>
+                              <Component id="testFileScrollPane" pref="326" max="32767" attributes="0"/>
+                              <Component id="testFileSearchBox" alignment="0" pref="326" max="32767" attributes="0"/>
                           </Group>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Component id="methodListScrollPane" pref="326" max="32767" attributes="0"/>
+                              <Component id="methodSearchBox" alignment="1" pref="326" max="32767" attributes="0"/>
+                          </Group>
+                      </Group>
+                      <Component id="progressBar" alignment="0" pref="658" max="32767" attributes="0"/>
+                      <Group type="102" alignment="0" attributes="0">
+                          <Component id="runButton" pref="325" max="32767" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="cancelButton" pref="327" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
@@ -117,20 +122,25 @@
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
-                  <EmptySpace max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="1" attributes="0">
-                      <Component id="testFileScrollPane" min="-2" pref="335" max="-2" attributes="0"/>
-                      <Component id="methodListScrollPane" min="-2" pref="335" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="testFileSearchBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="methodSearchBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace min="-2" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                      <Component id="methodListScrollPane" max="32767" attributes="3"/>
+                      <Component id="testFileScrollPane" alignment="0" pref="233" max="32767" attributes="3"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="runButton" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="cancelButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace max="-2" attributes="0"/>
+                  <EmptySpace min="-2" max="-2" attributes="0"/>
                   <Component id="progressBar" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="outputScrollPane" pref="278" max="32767" attributes="0"/>
+                  <Component id="outputScrollPane" pref="314" max="32767" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
           </Group>
@@ -199,6 +209,8 @@
                 <Property name="editable" type="boolean" value="false"/>
                 <Property name="lineWrap" type="boolean" value="true"/>
                 <Property name="rows" type="int" value="5"/>
+                <Property name="tabSize" type="int" value="4"/>
+                <Property name="wrapStyleWord" type="boolean" value="true"/>
               </Properties>
             </Component>
           </SubComponents>
@@ -213,6 +225,22 @@
           </Events>
         </Component>
         <Component class="javax.swing.JProgressBar" name="progressBar">
+        </Component>
+        <Component class="javax.swing.JTextField" name="testFileSearchBox">
+          <Properties>
+            <Property name="toolTipText" type="java.lang.String" value="Type to search the test files."/>
+          </Properties>
+          <Events>
+            <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="testFileSearchBoxKeyReleased"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JTextField" name="methodSearchBox">
+          <Properties>
+            <Property name="toolTipText" type="java.lang.String" value="Type to search the methods."/>
+          </Properties>
+          <Events>
+            <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="methodSearchBoxKeyReleased"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>
